@@ -5,18 +5,24 @@
       <div class="avatar_box">
         <img src="../assets/logo.png">
       </div>
-      <el-form class="loginForm">
+      <el-form class="loginForm"
+               :rules="rules"
+               :model="loginForm">
         <!--用户名-->
-        <el-form-item>
-          <el-input prefix-icon="iconfont icon-user"></el-input>
+        <el-form-item prop="username">
+          <el-input v-model="loginForm.username"
+                    prefix-icon="iconfont icon-user"></el-input>
         </el-form-item>
         <!--密码-->
-        <el-form-item>
-          <el-input prefix-icon="iconfont icon-3702mima"></el-input>
+        <el-form-item prop="password">
+          <el-input type="password"
+                    v-model="loginForm.password"
+                    prefix-icon="iconfont icon-3702mima"></el-input>
         </el-form-item>
         <!-- 操作按钮 -->
         <el-form-item class="btns">
-          <el-button type="primary">提交</el-button>
+          <el-button type="primary"
+                     @click="submit">提交</el-button>
           <el-button type="info">重置</el-button>
         </el-form-item>
       </el-form>
@@ -26,6 +32,31 @@
 
 <script>
 export default {
+  data () {
+    return {
+      loginForm: {
+        username: '',
+        password: ''
+      },
+      // 表单的校验规则
+      rules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入登录密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
+        ]
+      }
+
+    }
+  },
+  methods: {
+    submit () {
+      console.log(this.loginForm)
+    }
+  }
 
 }
 </script>
