@@ -6,6 +6,7 @@
         <img src="../assets/logo.png">
       </div>
       <el-form class="loginForm"
+               ref="formRef"
                :rules="rules"
                :model="loginForm">
         <!--用户名-->
@@ -23,7 +24,8 @@
         <el-form-item class="btns">
           <el-button type="primary"
                      @click="submit">提交</el-button>
-          <el-button type="info">重置</el-button>
+          <el-button type="info"
+                     @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -54,7 +56,18 @@ export default {
   },
   methods: {
     submit () {
-      console.log(this.loginForm)
+      // 提交表单预验证
+      this.$refs.formRef.validate(valid => {
+        if (valid) {
+          alert('submit!')
+        } else {
+          alert('please checkout your input !')
+        }
+      })
+    },
+    // 重置表单
+    reset () {
+      this.$refs.formRef.resetFields()
     }
   }
 
