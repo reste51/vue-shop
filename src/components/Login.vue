@@ -3,29 +3,33 @@
     <div class="login_box">
       <!-- 头像区域-->
       <div class="avatar_box">
-        <img src="../assets/logo.png">
+        <img src="../assets/logo.png" />
       </div>
-      <el-form class="loginForm"
-               ref="formRef"
-               :rules="rules"
-               :model="loginForm">
+      <el-form
+        class="loginForm"
+        ref="formRef"
+        :rules="rules"
+        :model="loginForm"
+      >
         <!--用户名-->
         <el-form-item prop="username">
-          <el-input v-model="loginForm.username"
-                    prefix-icon="iconfont icon-user"></el-input>
+          <el-input
+            v-model="loginForm.username"
+            prefix-icon="iconfont icon-user"
+          ></el-input>
         </el-form-item>
         <!--密码-->
         <el-form-item prop="password">
-          <el-input type="password"
-                    v-model="loginForm.password"
-                    prefix-icon="iconfont icon-3702mima"></el-input>
+          <el-input
+            type="password"
+            v-model="loginForm.password"
+            prefix-icon="iconfont icon-3702mima"
+          ></el-input>
         </el-form-item>
         <!-- 操作按钮 -->
         <el-form-item class="btns">
-          <el-button type="primary"
-                     @click="submit">提交</el-button>
-          <el-button type="info"
-                     @click="reset">重置</el-button>
+          <el-button type="primary" @click="submit">提交</el-button>
+          <el-button type="info" @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -34,7 +38,7 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       loginForm: {
         username: 'admin',
@@ -51,11 +55,10 @@ export default {
           { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
         ]
       }
-
     }
   },
   methods: {
-    submit () {
+    submit() {
       // 提交表单预验证
       this.$refs.formRef.validate(async valid => {
         // 如果验证成功，则请求后台api登录验证
@@ -86,11 +89,10 @@ export default {
       })
     },
     // 重置表单
-    reset () {
+    reset() {
       this.$refs.formRef.resetFields()
     }
   }
-
 }
 </script>
 
