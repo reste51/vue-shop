@@ -37,8 +37,8 @@ export default {
   data () {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       // 表单的校验规则
       rules: {
@@ -57,9 +57,29 @@ export default {
   methods: {
     submit () {
       // 提交表单预验证
-      this.$refs.formRef.validate(valid => {
+      this.$refs.formRef.validate(async valid => {
+        // 如果验证成功，则请求后台api登录验证
         if (valid) {
-          alert('submit!')
+          /*
+            post返回Promise对象，通过await解析, 在他的外部方法(valid){} 需要用async来修饰
+          */
+          const result = await this.$http.post('login', this.loginForm)
+          // 由于只需要data(重命名为 ret), 其余属性为axios创建的(request,headers...)
+          const { data: ret } = result
+          const { status, msg } = ret.meta
+          if (status === 200) {
+            this.$msg.success('login success!')
+            /*
+            登录成功后的操作：
+              1.sessionStorage 存储token, 访问其他api 需要携带token
+              2.编程式router跳转到Home组件中
+            */
+            window.sessionStorage.setItem('token', ret.data.token)
+
+            this.$router.push('/home')
+          } else {
+            this.$msg.error(msg)
+          }
         } else {
           alert('please checkout your input !')
         }
