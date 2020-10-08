@@ -45,6 +45,7 @@ export default {
   color: white;
   font-size: 20px;
 
+  // 使文字 居中
   > div {
     display: flex;
     align-items: center;
