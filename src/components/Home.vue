@@ -3,25 +3,44 @@
     <!-- 头部 -->
     <el-header>
       <div>
-        <img src="../assets/heima.png">
+        <img src="../assets/heima.png" />
         <span>电商后台管理系统</span>
       </div>
-      <el-button type="info"
-                 @click="logout">退出登录</el-button>
+      <el-button type="info" @click="logout">退出登录</el-button>
     </el-header>
     <el-container>
-      <el-aside width="200px">侧边栏</el-aside>
+      <el-aside width="200px">
+        <el-menu
+          background-color="#333744"
+          text-color="#fff"
+          active-text-color="#ffd04b"
+        >
+          <!-- 一级菜单 -->
+          <el-submenu index="1">
+            <template slot="title">
+              <i class="el-icon-location"></i>
+              <span>导航一</span>
+            </template>
+            <!-- 子菜单 -->
+            <el-menu-item index="1-1">
+              <template slot="title">
+                <i class="el-icon-location"></i>
+                <span>子菜单</span>
+              </template>
+            </el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
       <el-main>项目主体部分</el-main>
     </el-container>
   </el-container>
-
 </template>
 
 <script>
 export default {
   methods: {
     // 退出登录，1.清空token, 2.跳转登录页面
-    logout () {
+    logout() {
       window.sessionStorage.clear()
       this.$router.push('/login')
     }

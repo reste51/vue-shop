@@ -26,6 +26,16 @@ Vue.prototype.$msg = elementUI.Message
 
 Vue.config.productionTip = false
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+// 拦截器_在请求头中新增 Authorization= token
+axios.interceptors.request.use(config => {
+  console.log(config)
+  // 设置headers中token值, 当login登录时seesion中没有会为null
+  config.headers.Authorization = window.sessionStorage.getItem('token')
+
+  // 结尾必须返回config, 否则无法构成一个链条
+  return config
+})
+
 Vue.prototype.$http = axios // 新增原型属性名为$http  引用axios对象
 
 new Vue({
