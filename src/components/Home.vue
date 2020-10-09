@@ -16,16 +16,24 @@
           active-text-color="#ffd04b"
         >
           <!-- 一级菜单 -->
-          <el-submenu index="1">
+          <el-submenu
+            :index="menu.id + ''"
+            v-for="menu in menuList"
+            :key="menu.id"
+          >
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>导航一</span>
+              <span>{{ menu.authName }}</span>
             </template>
             <!-- 子菜单 -->
-            <el-menu-item index="1-1">
+            <el-menu-item
+              :index="subMenu.id + ''"
+              v-for="subMenu in menu.children"
+              :key="subMenu.id"
+            >
               <template slot="title">
                 <i class="el-icon-location"></i>
-                <span>子菜单</span>
+                <span>{{ subMenu.authName }}</span>
               </template>
             </el-menu-item>
           </el-submenu>
@@ -38,11 +46,28 @@
 
 <script>
 export default {
+  created() {
+    this.getMenuList()
+  },
+  data() {
+    return {
+      menuList: []
+    }
+  },
   methods: {
     // 退出登录，1.清空token, 2.跳转登录页面
     logout() {
       window.sessionStorage.clear()
       this.$router.push('/login')
+    },
+    // 请求接口 获取菜单数据
+    async getMenuList() {
+      const { data: ret } = await this.$http.get('menus')
+      const { status: code, msg } = ret.meta
+
+      if (code !== 200) return this.$msg.error(msg)
+
+      this.menuList = ret.data
     }
   }
 }
