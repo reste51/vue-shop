@@ -39,7 +39,10 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main>项目主体部分</el-main>
+      <el-main>
+        <!-- 路由承载页面 -->
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
