@@ -18,6 +18,7 @@
           active-text-color="#ffd04b"
           :collapse-transition="false"
           :collapse="collapsed"
+          router
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -31,7 +32,7 @@
             </template>
             <!-- 子菜单 -->
             <el-menu-item
-              :index="subMenu.id + ''"
+              :index="'/'+subMenu.path"
               v-for="subMenu in menu.children"
               :key="subMenu.id"
             >
@@ -53,6 +54,13 @@
 
 <script>
 export default {
+  /**
+   * 开启左侧子菜单点击的链接:
+   * 1. 在el-main 中router 模式,  添加 router即可
+   * 2. el-menu-item的index作为跳转路径
+   *    2.1 绝对的根路径, 需要在 前面加入 '/'+subMenu.path ;  /users
+   *    2.2 相对父组件/home/ 后增加链接,  subMenu.path      /home/users
+   */
   created() {
     this.getMenuList()
   },
