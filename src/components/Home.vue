@@ -9,11 +9,15 @@
       <el-button type="info" @click="logout">退出登录</el-button>
     </el-header>
     <el-container>
-      <el-aside width="200px">
+      <el-aside :width="collapsed?'56px':'200px'">
+        <div class="toggle-button" @click="toggleCollapse">|||</div>
         <el-menu
           background-color="#333744"
           text-color="#fff"
+          unique-opened
           active-text-color="#ffd04b"
+          :collapse-transition="false"
+          :collapse="collapsed"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -54,7 +58,9 @@ export default {
   },
   data() {
     return {
-      menuList: []
+      menuList: [],
+      // 菜单的展开和折叠状态
+      collapsed: false
     }
   },
   methods: {
@@ -71,6 +77,10 @@ export default {
       if (code !== 200) return this.$msg.error(msg)
 
       this.menuList = ret.data
+    },
+    // 控制菜单的折叠和展开的函数
+    toggleCollapse() {
+      this.collapsed = !this.collapsed
     }
   }
 }
@@ -106,5 +116,15 @@ export default {
 }
 .el-main {
   background-color: #eaedf1;
+}
+// 控制菜单折叠与 展开的按钮
+.toggle-button{
+  text-align: center;
+  letter-spacing: 0.21em;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #4a5064;
+  line-height: 24px;
 }
 </style>
