@@ -6,13 +6,21 @@ Vue.use(VueRouter)
 // path 和 component的配置
 const routes = [
   { path: '/', redirect: 'login' },
-  { path: '/login', name: 'login', component: () => import('../components/Login') },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('../components/Login')
+  },
   {
     path: '/home',
     component: () => import('../components/Home'),
     redirect: '/home/welcome',
     children: [
-      { path: '/home/welcome', component: () => import('../components/Welcome') }
+      {
+        path: '/home/welcome',
+        component: () => import('../components/Welcome')
+      },
+      { path: '/users', component: () => import('../components/user/Users') }
     ]
   }
 ]

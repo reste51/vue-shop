@@ -19,6 +19,7 @@
           :collapse-transition="false"
           :collapse="collapsed"
           router
+          :default-active="activePath"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -35,6 +36,7 @@
               :index="'/' + subMenu.path"
               v-for="subMenu in menu.children"
               :key="subMenu.id"
+              @click="updateActivePath('/' + subMenu.path)"
             >
               <template slot="title">
                 <i class="el-icon-menu"></i>
@@ -63,6 +65,7 @@ export default {
    */
   created() {
     this.getMenuList()
+    this.activePath = window.sessionStorage.getItem('activePath')
   },
   data() {
     return {
@@ -76,7 +79,9 @@ export default {
         145: 'iconfont icon-baobiao'
       },
       // 菜单的展开和折叠状态
-      collapsed: false
+      collapsed: false,
+      // 当前激活的菜单path
+      activePath: ''
     }
   },
   methods: {
@@ -97,6 +102,14 @@ export default {
     // 控制菜单的折叠和展开的函数
     toggleCollapse() {
       this.collapsed = !this.collapsed
+    },
+    /*
+      1. 点击每个二级菜单, 存储当前点击的path 到sessionStorage中 -- 在用户刷新页面(created 生命周期函数获取)
+      2. 动态更新data值
+    */
+    updateActivePath(path) {
+      window.sessionStorage.setItem('activePath', path)
+      this.activePath = path
     }
   }
 }
