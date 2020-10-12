@@ -13,7 +13,7 @@
         <el-menu
           background-color="#333744"
           text-color="#fff"
-          active-text-color="#ffd04b"
+          active-text-color="#409eef"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -22,7 +22,7 @@
             :key="menu.id"
           >
             <template slot="title">
-              <i class="el-icon-location"></i>
+              <i :class="menuIcon[menu.id]"></i>
               <span>{{ menu.authName }}</span>
             </template>
             <!-- 子菜单 -->
@@ -32,7 +32,7 @@
               :key="subMenu.id"
             >
               <template slot="title">
-                <i class="el-icon-location"></i>
+                <i class="el-icon-menu"></i>
                 <span>{{ subMenu.authName }}</span>
               </template>
             </el-menu-item>
@@ -51,7 +51,15 @@ export default {
   },
   data() {
     return {
-      menuList: []
+      menuList: [],
+      // 一级菜单的图标, {id:iconStr}
+      menuIcon: {
+        125: 'iconfont icon-user',
+        103: 'iconfont icon-tijikongjian',
+        101: 'iconfont icon-shangpin',
+        102: 'iconfont icon-danju',
+        145: 'iconfont icon-baobiao'
+      }
     }
   },
   methods: {
@@ -103,5 +111,9 @@ export default {
 }
 .el-main {
   background-color: #eaedf1;
+}
+// 一级菜单的图标 设置间距
+.iconfont {
+  margin-right: 10px;
 }
 </style>
