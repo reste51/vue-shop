@@ -9,11 +9,16 @@
       <el-button type="info" @click="logout">退出登录</el-button>
     </el-header>
     <el-container>
-      <el-aside width="200px">
+      <el-aside :width="collapsed ? '56px' : '200px'">
+        <div class="toggle-button" @click="toggleCollapse">|||</div>
         <el-menu
           background-color="#333744"
           text-color="#fff"
           active-text-color="#409eef"
+          unique-opened
+          :collapse-transition="false"
+          :collapse="collapsed"
+          router
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -27,7 +32,7 @@
             </template>
             <!-- 子菜单 -->
             <el-menu-item
-              :index="subMenu.id + ''"
+              :index="'/' + subMenu.path"
               v-for="subMenu in menu.children"
               :key="subMenu.id"
             >
@@ -39,13 +44,23 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main>项目主体部分</el-main>
+      <el-main>
+        <!-- 路由承载页面 -->
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
 export default {
+  /**
+   * 开启左侧子菜单点击的链接:
+   * 1. 在el-main 中router 模式,  添加 router即可
+   * 2. el-menu-item的index作为跳转路径
+   *    2.1 绝对的根路径, 需要在 前面加入 '/'+subMenu.path ;  /users
+   *    2.2 相对父组件/home/ 后增加链接,  subMenu.path      /home/users
+   */
   created() {
     this.getMenuList()
   },
@@ -59,7 +74,9 @@ export default {
         101: 'iconfont icon-shangpin',
         102: 'iconfont icon-danju',
         145: 'iconfont icon-baobiao'
-      }
+      },
+      // 菜单的展开和折叠状态
+      collapsed: false
     }
   },
   methods: {
@@ -76,6 +93,10 @@ export default {
       if (code !== 200) return this.$msg.error(msg)
 
       this.menuList = ret.data
+    },
+    // 控制菜单的折叠和展开的函数
+    toggleCollapse() {
+      this.collapsed = !this.collapsed
     }
   }
 }
@@ -115,5 +136,15 @@ export default {
 // 一级菜单的图标 设置间距
 .iconfont {
   margin-right: 10px;
+}
+// 控制菜单折叠与 展开的按钮
+.toggle-button {
+  text-align: center;
+  letter-spacing: 0.21em;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #4a5064;
+  line-height: 24px;
 }
 </style>

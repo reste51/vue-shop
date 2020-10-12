@@ -7,7 +7,14 @@ Vue.use(VueRouter)
 const routes = [
   { path: '/', redirect: 'login' },
   { path: '/login', name: 'login', component: () => import('../components/Login') },
-  { path: '/home', component: () => import('../components/Home') }
+  {
+    path: '/home',
+    component: () => import('../components/Home'),
+    redirect: '/home/welcome',
+    children: [
+      { path: '/home/welcome', component: () => import('../components/Welcome') }
+    ]
+  }
 ]
 const router = new VueRouter({
   routes
