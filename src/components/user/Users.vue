@@ -66,6 +66,18 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!--分页区域-->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :page-sizes="[1, 2, 3, 5, 10]"
+        :page-size="requestParams.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :current-page="requestParams.pagenum"
+        :total="total"
+      >
+      </el-pagination>
     </el-card>
   </div>
 </template>
@@ -74,8 +86,7 @@ export default {
   data() {
     return {
       userList: [],
-      total: 0,
-      currentNum: 0,
+      total: 0, // 当前数据的总数
       requestParams: {
         query: '',
         pagenum: 1,
@@ -95,8 +106,19 @@ export default {
         // 无错，则赋值
         this.userList = ret.data.users
         this.total = ret.data.total
-        this.currentNum = ret.data.pagenum
+        this.requestParams.pagenum = ret.data.pagenum
       }
+    },
+    // 每页size 发生变化时, 当前页码重置为1
+    handleSizeChange(newSize) {
+      this.requestParams.pagesize = newSize
+      this.requestParams.pagenum = 1
+      // 请求参数发生变化则 重新请求api 取数据
+      this.getUserList()
+    },
+    handleCurrentChange(newNum) {
+      this.requestParams.pagenum = newNum
+      this.getUserList()
     }
   },
   created() {
