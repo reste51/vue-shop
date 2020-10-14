@@ -18,6 +18,54 @@
           <el-button type="primary">添加用户</el-button>
         </el-col>
       </el-row>
+
+      <!--用户列表区域 -->
+      <el-table border stripe :data="userList">
+        <el-table-column type="index" width="50" label="#"></el-table-column>
+        <el-table-column label="姓名" prop="username"></el-table-column>
+        <el-table-column label="邮箱" prop="email"></el-table-column>
+        <el-table-column label="电话" prop="mobile"></el-table-column>
+        <el-table-column label="角色" prop="role_name"></el-table-column>
+        <el-table-column label="状态" prop="">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.mg_state"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            >
+            </el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="handleEdit(scope.$index, scope.row)"
+              icon="el-icon-edit"
+              type="primary"
+            ></el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              icon="el-icon-delete"
+              @click="handleDelete(scope.$index, scope.row)"
+            ></el-button>
+            <el-tooltip
+              content="分配角色"
+              effect="dark"
+              placement="top"
+              :enterable="false"
+            >
+              <el-button
+                size="mini"
+                type="warning"
+                icon="el-icon-setting"
+                @click="handleDelete(scope.$index, scope.row)"
+              ></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
 </template>
