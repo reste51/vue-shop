@@ -10,8 +10,13 @@
     <el-card>
       <el-row :gutter="20">
         <el-col :span="7">
-          <el-input placeholder="请输入内容">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入内容"
+                    v-model="requestParams.query"
+                    clearable
+                    @clear="getUserList">
+            <el-button slot="append"
+                       icon="el-icon-search"
+                       @click="searchData"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -20,70 +25,69 @@
       </el-row>
 
       <!--用户列表区域 -->
-      <el-table border stripe :data="userList">
-        <el-table-column type="index" width="50" label="#"></el-table-column>
-        <el-table-column label="姓名" prop="username"></el-table-column>
-        <el-table-column label="邮箱" prop="email"></el-table-column>
-        <el-table-column label="电话" prop="mobile"></el-table-column>
-        <el-table-column label="角色" prop="role_name"></el-table-column>
-        <el-table-column label="状态" prop="">
+      <el-table border
+                stripe
+                :data="userList">
+        <el-table-column type="index"
+                         width="50"
+                         label="#"></el-table-column>
+        <el-table-column label="姓名"
+                         prop="username"></el-table-column>
+        <el-table-column label="邮箱"
+                         prop="email"></el-table-column>
+        <el-table-column label="电话"
+                         prop="mobile"></el-table-column>
+        <el-table-column label="角色"
+                         prop="role_name"></el-table-column>
+        <el-table-column label="状态"
+                         prop="">
           <template slot-scope="scope">
-            <el-switch
-              v-model="scope.row.mg_state"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-            >
+            <el-switch v-model="scope.row.mg_state"
+                       @change="handleStateChange(scope.row)"
+                       active-color="#13ce66"
+                       inactive-color="#ff4949">
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180">
+        <el-table-column label="操作"
+                         width="180">
           <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="handleEdit(scope.$index, scope.row)"
-              icon="el-icon-edit"
-              type="primary"
-            ></el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              icon="el-icon-delete"
-              @click="handleDelete(scope.$index, scope.row)"
-            ></el-button>
-            <el-tooltip
-              content="分配角色"
-              effect="dark"
-              placement="top"
-              :enterable="false"
-            >
-              <el-button
-                size="mini"
-                type="warning"
-                icon="el-icon-setting"
-                @click="handleDelete(scope.$index, scope.row)"
-              ></el-button>
+            <el-button size="mini"
+                       @click="handleEdit(scope.$index, scope.row)"
+                       icon="el-icon-edit"
+                       type="primary"></el-button>
+            <el-button size="mini"
+                       type="danger"
+                       icon="el-icon-delete"
+                       @click="handleDelete(scope.$index, scope.row)"></el-button>
+            <el-tooltip content="分配角色"
+                        effect="dark"
+                        placement="top"
+                        :enterable="false">
+              <el-button size="mini"
+                         type="warning"
+                         icon="el-icon-setting"
+                         @click="handleDelete(scope.$index, scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
       <!--分页区域-->
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :page-sizes="[1, 2, 3, 5, 10]"
-        :page-size="requestParams.pagesize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :current-page="requestParams.pagenum"
-        :total="total"
-      >
+      <el-pagination @size-change="handleSizeChange"
+                     @current-change="handleCurrentChange"
+                     :page-sizes="[1, 2, 3, 5, 10]"
+                     :page-size="requestParams.pagesize"
+                     layout="total, sizes, prev, pager, next, jumper"
+                     :current-page="requestParams.pagenum"
+                     :total="total">
       </el-pagination>
     </el-card>
   </div>
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       userList: [],
       total: 0, // 当前数据的总数
@@ -95,7 +99,10 @@ export default {
     }
   },
   methods: {
-    async getUserList() {
+    searchData () {
+      this.getUserList()
+    },
+    async getUserList () {
       const { data: ret } = await this.$http.get('users', {
         params: this.requestParams
       })
@@ -110,18 +117,29 @@ export default {
       }
     },
     // 每页size 发生变化时, 当前页码重置为1
-    handleSizeChange(newSize) {
+    handleSizeChange (newSize) {
       this.requestParams.pagesize = newSize
       this.requestParams.pagenum = 1
       // 请求参数发生变化则 重新请求api 取数据
       this.getUserList()
     },
-    handleCurrentChange(newNum) {
+    handleCurrentChange (newNum) {
       this.requestParams.pagenum = newNum
       this.getUserList()
+    },
+    // 用户状态 改变的监听事件
+    async handleStateChange (row) {
+      const { data: ret } = await this.$http.put(`users/${row.id}/state/${row.mg_state}`)
+      const { status: code, msg } = ret.meta
+      if (code !== 200) {
+        this.$msg.error(msg)
+        row.mg_state = !row.mg_state
+      } else {
+        this.$msg.success(msg)
+      }
     }
   },
-  created() {
+  created () {
     this.getUserList()
   }
 }
