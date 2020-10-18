@@ -20,7 +20,8 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary">添加用户</el-button>
+          <el-button type="primary"
+                     @click="addDialogVisible=true">添加用户</el-button>
         </el-col>
       </el-row>
 
@@ -83,6 +84,40 @@
                      :total="total">
       </el-pagination>
     </el-card>
+
+    <el-dialog title="添加用户"
+               :visible.sync="addDialogVisible"
+               width="50%">
+      <el-form :model="addUserForm"
+               :rules="addUserRules"
+               ref="addUserFormRef"
+               label-width="100px">
+        <el-form-item label="用户名"
+                      prop="username">
+          <el-input v-model="addUserForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码"
+                      prop="password">
+          <el-input v-model="addUserForm.password"
+                    type="password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱"
+                      prop="email">
+          <el-input v-model="addUserForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机"
+                      prop="mobile">
+          <el-input v-model="addUserForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer"
+            class="dialog-footer">
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="addDialogVisible = false">添 加</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 <script>
@@ -95,6 +130,25 @@ export default {
         query: '',
         pagenum: 1,
         pagesize: 2
+      },
+      addDialogVisible: false,
+      // 添加用户的表单数据
+      addUserForm: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      addUserRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 5 到 16 个字符', trigger: 'blur' }
+        ],
+        email: { required: true, message: '请输入邮箱', trigger: 'blur' },
+        mobile: { required: true, message: '请输入手机号', trigger: 'blur' }
       }
     }
   },
