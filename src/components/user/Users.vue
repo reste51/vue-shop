@@ -54,7 +54,7 @@
                          width="180">
           <template slot-scope="scope">
             <el-button size="mini"
-                       @click="editUser(scope.row.id)"
+                       @click="openEditUserDialog(scope.row.id)"
                        icon="el-icon-edit"
                        type="primary"></el-button>
             <el-button size="mini"
@@ -129,12 +129,7 @@
         <el-form-item label="用户名"
                       prop="username">
           <el-input v-model="editUserForm.username"
-                    readonly></el-input>
-        </el-form-item>
-        <el-form-item label="密码"
-                      prop="password">
-          <el-input v-model="editUserForm.password"
-                    type="password"></el-input>
+                    disabled></el-input>
         </el-form-item>
         <el-form-item label="邮箱"
                       prop="email">
@@ -149,7 +144,7 @@
             class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
         <el-button type="primary"
-                   @click="editDialogVisible=false">编 辑</el-button>
+                   @click="editUser">编 辑</el-button>
       </span>
     </el-dialog>
 
@@ -192,7 +187,12 @@ export default {
         mobile: ''
       },
       // 编辑用户的表单
-      editUserForm: {},
+      editUserForm: {
+        username: '',
+        email: '',
+        mobile: '',
+        id: ''
+      },
       addUserRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -268,17 +268,34 @@ export default {
         this.addDialogVisible = false
       })
     },
-    async editUser (userId) {
+    // 打开编辑窗口 并且 根据id获取 用户信息
+    async openEditUserDialog (userId) {
       this.editDialogVisible = true
-      // 根据id获取 用户信息
       const { data: res } = await this.$http.get(`/users/${userId}`)
       const { status: code, msg } = res.meta
       // 提示信息
       if (code !== 200) return this.$msg.error(msg)
       else {
-        this.editUserForm = res.data
-        console.log(this.editUserForm)
+        Object.assign(this.editUserForm, res.data)
       }
+    },
+    // 编辑用户的操作
+    editUser() {
+      this.$refs.editUserFormRef.validate(async validate => {
+        if (!validate) return
+        // 请求后台api添加用户
+        const { data: res } = await this.$http.put(`users/${this.editUserForm.id}`, this.editUserForm)
+        const { status: code, msg } = res.meta
+        // 提示信息
+        if (code !== 200) this.$msg.error(msg)
+        else {
+          // 添加成功 刷新用户列表
+          this.$msg.success(msg)
+          this.getUserList()
+        }
+        // 关闭窗口
+        this.editDialogVisible = false
+      })
     }
   },
   created () {
