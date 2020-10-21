@@ -54,7 +54,7 @@
                          width="180">
           <template slot-scope="scope">
             <el-button size="mini"
-                       @click="handleEdit(scope.$index, scope.row)"
+                       @click="editUser(scope.row.id)"
                        icon="el-icon-edit"
                        type="primary"></el-button>
             <el-button size="mini"
@@ -119,6 +119,40 @@
       </span>
     </el-dialog>
 
+    <el-dialog title="编辑用户"
+               :visible.sync="editDialogVisible"
+               width="50%">
+      <el-form :model="editUserForm"
+               :rules="addUserRules"
+               ref="editUserFormRef"
+               label-width="100px">
+        <el-form-item label="用户名"
+                      prop="username">
+          <el-input v-model="editUserForm.username"
+                    readonly></el-input>
+        </el-form-item>
+        <el-form-item label="密码"
+                      prop="password">
+          <el-input v-model="editUserForm.password"
+                    type="password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱"
+                      prop="email">
+          <el-input v-model="editUserForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机"
+                      prop="mobile">
+          <el-input v-model="editUserForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer"
+            class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="editDialogVisible=false">编 辑</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 <script>
@@ -149,6 +183,7 @@ export default {
         pagesize: 2
       },
       addDialogVisible: false,
+      editDialogVisible: false,
       // 添加用户的表单数据
       addUserForm: {
         username: '',
@@ -156,6 +191,8 @@ export default {
         email: '',
         mobile: ''
       },
+      // 编辑用户的表单
+      editUserForm: {},
       addUserRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -230,6 +267,18 @@ export default {
         // 关闭窗口
         this.addDialogVisible = false
       })
+    },
+    async editUser (userId) {
+      this.editDialogVisible = true
+      // 根据id获取 用户信息
+      const { data: res } = await this.$http.get(`/users/${userId}`)
+      const { status: code, msg } = res.meta
+      // 提示信息
+      if (code !== 200) return this.$msg.error(msg)
+      else {
+        this.editUserForm = res.data
+        console.log(this.editUserForm)
+      }
     }
   },
   created () {
