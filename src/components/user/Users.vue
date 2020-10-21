@@ -87,7 +87,8 @@
 
     <el-dialog title="添加用户"
                :visible.sync="addDialogVisible"
-               width="50%">
+               width="50%"
+               @close='closeAddDialog'>
       <el-form :model="addUserForm"
                :rules="addUserRules"
                ref="addUserFormRef"
@@ -114,7 +115,7 @@
             class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
         <el-button type="primary"
-                   @click="addDialogVisible = false">添 加</el-button>
+                   @click="addUser">添 加</el-button>
       </span>
     </el-dialog>
 
@@ -123,6 +124,22 @@
 <script>
 export default {
   data () {
+    // 声明自定义的校验函数
+    var checkEmail = (rule, val, callback) => {
+      const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
+      if (regEmail.test(val)) {
+        return callback()
+      }
+      callback(new Error('邮箱输入不合法，请重新输入!'))
+    }
+    var checkMobile = (rule, val, callback) => {
+      const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+      if (regMobile.test(val)) {
+        return callback()
+      }
+      callback(new Error('手机号输入不合法，请重新输入!'))
+    }
+
     return {
       userList: [],
       total: 0, // 当前数据的总数
@@ -147,8 +164,8 @@ export default {
           { required: true, message: '请输入密码', trigger: 'blur' },
           { min: 3, max: 10, message: '长度在 5 到 16 个字符', trigger: 'blur' }
         ],
-        email: { required: true, message: '请输入邮箱', trigger: 'blur' },
-        mobile: { required: true, message: '请输入手机号', trigger: 'blur' }
+        email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }, { validator: checkEmail, trigger: 'blur' }],
+        mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' }, { validator: checkMobile, trigger: 'blur' }]
       }
     }
   },
@@ -191,6 +208,28 @@ export default {
       } else {
         this.$msg.success(msg)
       }
+    },
+    // 关闭窗口的回调函数_ 重置表单
+    closeAddDialog () {
+      this.$refs.addUserFormRef.resetFields()
+    },
+    // 添加用户操作
+    addUser () {
+      this.$refs.addUserFormRef.validate(async validate => {
+        if (!validate) return
+        // 请求后台api添加用户
+        const { data: res } = await this.$http.post('users', this.addUserForm)
+        const { status: code, msg } = res.meta
+        // 提示信息
+        if (code !== 201) this.$msg.error(msg)
+        else {
+          // 添加成功 刷新用户列表
+          this.$msg.success(msg)
+          this.getUserList()
+        }
+        // 关闭窗口
+        this.addDialogVisible = false
+      })
     }
   },
   created () {
