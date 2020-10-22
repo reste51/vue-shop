@@ -60,7 +60,7 @@
             <el-button size="mini"
                        type="danger"
                        icon="el-icon-delete"
-                       @click="handleDelete(scope.$index, scope.row)"></el-button>
+                       @click="deleteUser(scope.row.id)"></el-button>
             <el-tooltip content="分配角色"
                         effect="dark"
                         placement="top"
@@ -175,7 +175,7 @@ export default {
       requestParams: {
         query: '',
         pagenum: 1,
-        pagesize: 2
+        pagesize: 5
       },
       addDialogVisible: false,
       editDialogVisible: false,
@@ -280,7 +280,7 @@ export default {
       }
     },
     // 编辑用户的操作
-    editUser() {
+    editUser () {
       this.$refs.editUserFormRef.validate(async validate => {
         if (!validate) return
         // 请求后台api添加用户
@@ -296,6 +296,30 @@ export default {
         // 关闭窗口
         this.editDialogVisible = false
       })
+    },
+    async deleteUser (userId) {
+      /*
+        当用户 按 确认后， 返回 字符串 'confirm'
+        取消后， 会抛异常， 因此用catch返回错误后， 'cancel'
+      */
+      const statusText = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(error => error)
+
+      // 取消操作
+      if (statusText === 'cancel') {
+        return this.$message({ type: 'info', message: '已取消删除' })
+      }
+      // 确认操作
+      const { data: ret } = await this.$http.delete(`users/${userId}`)
+      if (ret.meta.status === 200) {
+        this.$msg.success('删除成功！')
+        this.getUserList()
+      } else {
+        this.$msg.error(ret.meta.msg)
+      }
     }
   },
   created () {
