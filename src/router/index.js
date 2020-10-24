@@ -20,7 +20,8 @@ const routes = [
         path: '/home/welcome',
         component: () => import('../components/Welcome')
       },
-      { path: '/users', component: () => import('../components/user/Users') }
+      { path: '/users', component: () => import('../components/user/Users') },
+      { path: '/rights', component: () => import('../components/power/Rights') }
     ]
   }
 ]
