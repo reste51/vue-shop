@@ -1,6 +1,6 @@
 <template>
   <el-container class="home-container">
-    <!-- 头部 -->
+    <!-- 头部 1-->
     <el-header>
       <div>
         <img src="../assets/heima.png" />
