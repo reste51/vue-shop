@@ -283,6 +283,7 @@ export default {
     editUser () {
       this.$refs.editUserFormRef.validate(async validate => {
         if (!validate) return
+        console.log(this.editUserForm)
         // 请求后台api添加用户
         const { data: res } = await this.$http.put(`users/${this.editUserForm.id}`, this.editUserForm)
         const { status: code, msg } = res.meta

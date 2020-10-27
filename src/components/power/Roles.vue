@@ -172,13 +172,21 @@ export default {
       // 提示信息
       if (code !== 200) return this.$msg.error(msg)
       else {
-        this.editRoleForm = res.data
+        /*
+        注：不能单纯的赋值对象引用, 会导致 双向绑定监听失败
+          使用 assign 赋值属性里面的值 （还是不行）
+        */
+        // this.editRoleForm = res.data
+        Object.assign(this.editRoleForm, res.data)
         this.editDialogVisible = true
       }
     },
     editRole () {
       this.$refs.editRoleFormRef.validate(async validate => {
+        console.log(this.editRoleForm)
         if (!validate) return
+        // 关闭窗口
+        this.editDialogVisible = false
         // 请求后台api添加用户
         const { data: res } = await this.$http.put(`roles/${this.editRoleForm.roleId}`, this.editRoleForm)
         const { status: code, msg } = res.meta
@@ -189,8 +197,6 @@ export default {
           this.$msg.success(msg)
           this.getRoleList()
         }
-        // 关闭窗口
-        this.editDialogVisible = false
       })
     },
     async deleteRole (id) {
