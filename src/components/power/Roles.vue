@@ -18,7 +18,33 @@
         <!-- 展开列 -->
         <el-table-column type="expand">
           <template slot-scope="scope">
-            <div>{{scope.row}}</div>
+            <el-row v-for="(item1,index1) in scope.row.children"
+                    :key="index1"
+                    :class="['bd-bottom', index1==0?'bd-top':'','vcenter' ]">
+              <!-- 一级权限 -->
+              <el-col :span="5">
+                <el-tag type="primary">{{item1.authName}}</el-tag>
+                <i class="el-icon-caret-right"></i>
+              </el-col>
+              <!-- 每个二级权限占一行， 再显示他的子权限  -->
+              <el-col :span="19">
+                <el-row v-for="(item2,index2) in item1.children"
+                        :key="index2"
+                        :class="[index2!==item1.children.length-1? 'bd-bottom':'']">
+                  <!-- 二级权限 -->
+                  <el-col :span="8">
+                    <el-tag type="success">{{item2.authName}}</el-tag>
+                    <i class="el-icon-caret-right"></i>
+                  </el-col>
+                  <!-- 三级权限 -->
+                  <el-col :span="16">
+                    <el-tag v-for="(item3,index3) in item2.children"
+                            :key="index3"
+                            type="warning">{{item3.authName}}</el-tag>
+                  </el-col>
+                </el-row>
+              </el-col>
+            </el-row>
           </template>
         </el-table-column>
         <el-table-column type="index"
@@ -182,6 +208,11 @@ export default {
       }
     },
     editRole () {
+      /*
+       TODO  注： 经过 validate 方法后， editForm的属性值会还原之前的值_
+        但请求接口时又是修改后的值， 不知道是什么问题  2020年10月28日
+      */
+      console.log(this.editRoleForm)
       this.$refs.editRoleFormRef.validate(async validate => {
         console.log(this.editRoleForm)
         if (!validate) return
@@ -224,4 +255,18 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.el-tag {
+  margin: 10px 5px 10px 0;
+}
+.bd-top {
+  border-top: 1px solid #eee;
+}
+.bd-bottom {
+  border-bottom: 1px solid #eee;
+}
+/** 垂直居中 */
+.vcenter {
+  display: flex;
+  align-items: center;
+}
 </style>
