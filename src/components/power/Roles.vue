@@ -23,7 +23,9 @@
                     :class="['bd-bottom', index1==0?'bd-top':'','vcenter' ]">
               <!-- 一级权限 -->
               <el-col :span="5">
-                <el-tag type="primary">{{item1.authName}}</el-tag>
+                <el-tag closable
+                        @close="removeAuth(item1.id,scope.row)"
+                        type="primary">{{item1.authName}}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <!-- 每个二级权限占一行， 再显示他的子权限  -->
@@ -33,13 +35,17 @@
                         :class="[index2!==item1.children.length-1? 'bd-bottom':'']">
                   <!-- 二级权限 -->
                   <el-col :span="8">
-                    <el-tag type="success">{{item2.authName}}</el-tag>
+                    <el-tag closable
+                            @close="removeAuth(item2.id,scope.row)"
+                            type="success">{{item2.authName}}</el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <!-- 三级权限 -->
                   <el-col :span="16">
                     <el-tag v-for="(item3,index3) in item2.children"
                             :key="index3"
+                            closable
+                            @close="removeAuth(item3.id,scope.row)"
                             type="warning">{{item3.authName}}</el-tag>
                   </el-col>
                 </el-row>
@@ -66,7 +72,7 @@
             <el-button size="mini"
                        type="warning"
                        icon="el-icon-setting"
-                       @click="deleteUser(scope.row.id)">分配权限</el-button>
+                       @click="showSetRightsDialog(scope.row.id)">分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -121,6 +127,18 @@
       </span>
     </el-dialog>
 
+    <!-- 给角色分配权限 -->
+    <el-dialog title="提示"
+               :visible.sync="setRightDialogVisible"
+               width="50%">
+      <span>这是一段信息</span>
+      <span slot="footer"
+            class="dialog-footer">
+        <el-button @click="setRightDialogVisible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="setRightDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -152,7 +170,8 @@ export default {
         roleName: ''
       },
       addDialogVisible: false,
-      editDialogVisible: false
+      editDialogVisible: false,
+      setRightDialogVisible: false
     }
   },
   created () {
@@ -249,6 +268,42 @@ export default {
       } else {
         this.$msg.error(ret.meta.msg)
       }
+    },
+    // 删除权限的标签
+    async removeAuth (authId, role) {
+      console.log(`authId: ${authId}, roleId: ${role.id}`)
+      const statusText = await this.$confirm('此操作取消该权限, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(error => error)
+
+      // 取消操作
+      if (statusText === 'confirm') {
+        const { data: ret } = await this.$http.delete(`roles/${role.id}/rights/${authId}`)
+        const { status: code, msg } = ret.meta
+        // 提示信息
+        if (code !== 200) this.$msg.error(msg)
+        else {
+          // 添加成功 刷新用户列表
+          this.$msg.success(msg)
+          // 注： 为了不刷新整个页面(会关闭当前角色的权限页面),
+          //  因此只对当前角色下的权限进行页面更新
+          role.children = ret.data
+        }
+      }
+    },
+    // 展示所有权限树
+    async showSetRightsDialog () {
+      // 请求所有权限数据
+      const { data: res } = await this.$http.get('rights/tree')
+      const { status: code, msg } = res.meta
+      if (code !== 200) this.$msg.error(msg)
+      else {
+        // 添加成功 刷新用户列表
+        console.log(res.data)
+      }
+      this.setRightDialogVisible = true
     }
   }
 }
