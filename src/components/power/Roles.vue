@@ -72,7 +72,7 @@
             <el-button size="mini"
                        type="warning"
                        icon="el-icon-setting"
-                       @click="showSetRightsDialog(scope.row.id)">分配权限</el-button>
+                       @click="showSetRightsDialog(scope.row)">分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -130,13 +130,21 @@
     <!-- 给角色分配权限 -->
     <el-dialog title="提示"
                :visible.sync="setRightDialogVisible"
-               width="50%">
-      <span>这是一段信息</span>
+               width="50%"
+               @close="closeRightsDialog">
+      <el-tree :data="allRigthsData"
+               :props="treeProps"
+               show-checkbox
+               node-key="id"
+               :default-checked-keys="defKeyArr"
+               default-expand-all
+               ref="alotRightsTree"></el-tree>
+
       <span slot="footer"
             class="dialog-footer">
         <el-button @click="setRightDialogVisible = false">取 消</el-button>
         <el-button type="primary"
-                   @click="setRightDialogVisible = false">确 定</el-button>
+                   @click="alotRigths">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -171,7 +179,16 @@ export default {
       },
       addDialogVisible: false,
       editDialogVisible: false,
-      setRightDialogVisible: false
+      setRightDialogVisible: false,
+      allRigthsData: [],
+      treeProps: {
+        children: 'children',
+        label: 'authName'
+      },
+      // 默认选择的节点id
+      defKeyArr: [],
+      // 分配权限的 角色id
+      alotRoleId: ''
     }
   },
   created () {
@@ -185,7 +202,6 @@ export default {
       if (code !== 200) return this.$msg.error(msg)
       else {
         this.roleList = res.data // 输出的对象类型为 Observer页面可以生效
-        console.log(this.roleList)
       }
     },
     closeAddDialog () {
@@ -271,7 +287,6 @@ export default {
     },
     // 删除权限的标签
     async removeAuth (authId, role) {
-      console.log(`authId: ${authId}, roleId: ${role.id}`)
       const statusText = await this.$confirm('此操作取消该权限, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -293,17 +308,60 @@ export default {
         }
       }
     },
+    // 关闭授权窗口,清空上次角色拥有的权限数据
+    closeRightsDialog () {
+      this.defKeyArr = []
+    },
     // 展示所有权限树
-    async showSetRightsDialog () {
+    async showSetRightsDialog (curRole) {
+      // 存储当前角色id, 供 分配角色保存时使用
+      this.alotRoleId = curRole.id
+
       // 请求所有权限数据
       const { data: res } = await this.$http.get('rights/tree')
       const { status: code, msg } = res.meta
       if (code !== 200) this.$msg.error(msg)
       else {
         // 添加成功 刷新用户列表
-        console.log(res.data)
+        this.allRigthsData = res.data
+        this.setDefaultCheckKeys(curRole)
       }
       this.setRightDialogVisible = true
+    },
+    // 通过递归方式 获取当前角色的三级权限id
+    setDefaultCheckKeys (item) {
+      // if (item.children === undefined) {
+      if (!item.children) { // 三级权限添加
+        this.defKeyArr.push(item.id)
+      } else {
+        // of 用于遍历数组的每个元素, in 则是 遍历对象的key
+        /*
+        for (var tmp of item.children) {
+          this.setDefaultCheckKeys(tmp)
+        } */
+        item.children.forEach(element => {
+          this.setDefaultCheckKeys(element)
+        })
+      }
+    },
+    // 分配 权限
+    async alotRigths () {
+      // 获取 全选(叶子节点) 和半选(1，2级节点)的id数组
+      const alotIdArr = [
+        // ... 将函数返回的数组转为 , 分割字符串列表
+        ...this.$refs.alotRightsTree.getCheckedKeys(),
+        ...this.$refs.alotRightsTree.getHalfCheckedKeys()
+      ]
+      // , 分割字符串
+      const alotIdStr = alotIdArr.join(',')
+      const { data: res } = await this.$http.post(`roles/${this.alotRoleId}/rights`, { rids: alotIdStr })
+      if (res.meta.status !== 200) {
+        this.$msg.error(res.meta.msg)
+      } else {
+        this.$msg.success(res.meta.msg)
+        this.getRoleList()
+      }
+      this.setRightDialogVisible = false
     }
   }
 }
