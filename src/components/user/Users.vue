@@ -68,7 +68,7 @@
               <el-button size="mini"
                          type="warning"
                          icon="el-icon-setting"
-                         @click="handleDelete(scope.$index, scope.row)"></el-button>
+                         @click="setRoleDialog(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -148,6 +148,30 @@
       </span>
     </el-dialog>
 
+    <el-dialog title="分配角色"
+               :visible.sync="setRoleDialogVisible"
+               width="50%"
+               @close="setRoleDialogClosed">
+      <p>当前的用户： {{userInfo.username}}</p>
+      <p>当前的角色： {{userInfo.role_name}}</p>
+      <p>分配新角色：
+        <el-select v-model="setRoleId"
+                   placeholder="请选择">
+          <el-option v-for="item in roleList"
+                     :key="item.id"
+                     :label="item.roleName"
+                     :value="item.id">
+          </el-option>
+        </el-select>
+      </p>
+      <span slot="footer"
+            class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary"
+                   @click="setRole">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 <script>
@@ -203,7 +227,13 @@ export default {
         ],
         email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }, { validator: checkEmail, trigger: 'blur' }],
         mobile: [{ required: true, message: '请输入手机号', trigger: 'blur' }, { validator: checkMobile, trigger: 'blur' }]
-      }
+      },
+      // 设置角色的 显示和隐藏
+      setRoleDialogVisible: false,
+      // 当前分配的用户信息
+      userInfo: {},
+      roleList: [],
+      setRoleId: ''
     }
   },
   methods: {
@@ -321,6 +351,36 @@ export default {
       } else {
         this.$msg.error(ret.meta.msg)
       }
+    },
+    // 分配角色
+    async setRoleDialog (userInfo) {
+      this.userInfo = userInfo
+      // 获取 所有的角色数据
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) {
+        this.$msg.error(res.meta.msg)
+      } else {
+        this.roleList = res.data
+      }
+      this.setRoleDialogVisible = true
+      console.log(this.setRoleId)
+    },
+    setRoleDialogClosed () {
+      this.userInfo = {}
+      this.setRoleId = ''
+      this.setRoleDialogVisible = false
+    },
+    // 设置用户的 新角色
+    async setRole () {
+      console.log(this.setRoleId, this.userInfo)
+      const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, { rid: this.setRoleId })
+      if (res.meta.status !== 200) {
+        this.$msg.error(res.meta.msg)
+      } else {
+        this.$msg.success(res.meta.msg)
+        this.getUserList()
+      }
+      this.setRoleDialogVisible = false
     }
   },
   created () {
